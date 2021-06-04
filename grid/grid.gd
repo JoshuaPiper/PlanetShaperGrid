@@ -36,6 +36,14 @@ func request_move(pawn, direction, dryRun=false):
 				var object_pawn = get_cell_pawn(cell_target)
 				if object_pawn.object_moved(direction) != -1:
 					return update_pawn_position(pawn, cell_start, cell_target)
+					
+func get_cell_type(pawn, direction):
+	var cell_target = get_cell_pos(pawn, direction)
+	var cell_target_type = get_cellv(cell_target)
+	return cell_target_type
+	
+func get_cell_pos(pawn, direction):
+	return world_to_map(pawn.position) + direction
 
 func update_pawn_position(pawn, cell_start, cell_target, dryRun=false):
 	if not dryRun:
