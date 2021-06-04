@@ -2,28 +2,53 @@ extends Node2D
 
 enum CELL_TYPES{ ACTOR, OBSTACLE, OBJECT }
 var type = CELL_TYPES.ACTOR
+var last_direction = 1 # 1 is right, -1 is left
 onready var Grid = get_parent()
 
 func _ready():
-	update_look_direction(Vector2(1, 0))
+	update_look_direction(Vector2(last_direction, 0))
 
 func _process(_delta):
 	var input_direction = get_input_direction()
-	if not input_direction:
-		return
-	update_look_direction(input_direction)
-
-	var target_position = Grid.request_move(self, input_direction)
-	if target_position:
-		print(target_position)
-		var floor_position = Grid.request_move(self, input_direction + Vector2(0, 1))
-		move_to(target_position, floor_position)
-	else:
-		bump()
+	if input_direction.x != 0:
+		if input_direction.x != last_direction:
+			# Only change direction without move if turning around
+			last_direction = input_direction.x
+			update_look_direction(Vector2(last_direction, 0))
+		else:
+			input_direction = Vector2(input_direction.x, 0)
+			var target_position = Grid.request_move(self, input_direction)
+			if target_position:
+				# Determine if actor is falling
+				var floor_position = Grid.request_move(self, input_direction + Vector2(0, 1))
+				if floor_position:
+					print(floor_position)
+				else:
+					print(target_position)
+				move_to(target_position, floor_position)
+			else:
+				bump()
+	elif input_direction.y != 0:
+		input_direction = Vector2(0, input_direction.y)
+		# Make sure to:
+		# - No object above you
+		# - No object in the final destination of the jump
+		# - Have an object in your direction (so you need to climb on it)
+		# Use dryRun to not actually move or push anything
+		if Grid.request_move(self, input_direction, true) and \
+		   Grid.request_move(self, input_direction + Vector2(last_direction, 0), true) and \
+		   not Grid.request_move(self, Vector2(last_direction, 0), true):
+			var target_position = Grid.request_move(self, input_direction, true)
+			var floor_position = Grid.request_move(self, input_direction + Vector2(last_direction, 0))
+			move_to(target_position, floor_position)
+			print(floor_position)
+		else:
+			bump()
 
 func get_input_direction():
 	return Vector2(
-		int(Input.is_action_pressed("ui_right")) - int(Input.is_action_pressed("ui_left")), 0
+		int(Input.is_action_just_pressed("ui_right")) - int(Input.is_action_just_pressed("ui_left")),
+		int(0 - int(Input.is_action_just_pressed("ui_up")))
 	)
 
 func update_look_direction(direction):

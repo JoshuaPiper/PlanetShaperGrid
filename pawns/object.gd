@@ -5,6 +5,7 @@ var type = CELL_TYPES.OBJECT
 onready var Grid = get_parent()
 	
 func object_moved(input_direction):
+	# Same logic as the actor move and fall
 	var target_position = Grid.request_move(self, input_direction)
 	if target_position:
 		var floor_position = Grid.request_move(self, input_direction + Vector2(0, 1))
