@@ -1,6 +1,6 @@
 extends TileMap
 
-enum { EMPTY = -1, ACTOR, OBSTACLE, OBJECT}
+enum { EMPTY = -1, ACTOR, OBSTACLE, OBJECT }
 
 func _ready():
 	for child in get_children():

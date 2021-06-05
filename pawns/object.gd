@@ -5,15 +5,19 @@ var type = CELL_TYPES.OBJECT
 onready var Grid = get_parent()
 	
 func object_moved(input_direction):
-	# Same logic as the actor move and fall
-	var target_position = Grid.request_move(self, input_direction)
-	if target_position:
-		var floor_position = Grid.request_move(self, input_direction + Vector2(0, 1))
-		move_to(target_position, floor_position)
+	# Prevent pushing two or more objects in a row
+	if Grid.get_cell_type(self, input_direction) == CELL_TYPES.EMPTY:
+		# Same logic as the actor move and fall
+		var target_position = Grid.request_move(self, input_direction)
+		if target_position:
+			var floor_position = Grid.request_move(self, input_direction + Vector2(0, 1))
+			move_to(target_position, floor_position)
+		else:
+			return -1
 	else:
 		return -1
 	
-func move_to(target_position, floor_position):
+func move_to(target_position, floor_position=null):
 	set_process(false)
 	$AnimationPlayer.play("walk")
 

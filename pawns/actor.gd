@@ -25,6 +25,14 @@ func _process(_delta):
 					print(floor_position)
 				else:
 					print(target_position)
+				
+				# The object above the actor will fall
+				var offset = -1
+				while Grid.get_cell_type(self, Vector2(0, offset)) == CELL_TYPES.OBJECT:
+					var obj_pawn = Grid.get_cell_pawn(Grid.get_cell_pos(self, Vector2(0, offset)))
+					obj_pawn.object_moved(Vector2(0, 1))
+					offset -= 1
+				
 				move_to(target_position, floor_position)
 			else:
 				bump()
@@ -55,9 +63,16 @@ func _process(_delta):
 				if floor_position:
 					print(floor_position)
 				else:
-					print(target_position)
+					print(target_position)		
 				move_to(target_position, floor_position)
 				obj_pawn.object_moved(input_direction)
+			
+				# The object above the object will fall
+				var offset = -1
+				while Grid.get_cell_type(self, Vector2(last_direction, offset)) == CELL_TYPES.OBJECT:
+					var obj_pawn2 = Grid.get_cell_pawn(Grid.get_cell_pos(self, Vector2(last_direction, offset)))
+					obj_pawn2.object_moved(Vector2(0, 1))
+					offset -= 1	
 			else:
 				bump()
 		else:
@@ -74,9 +89,9 @@ func get_input_grab():
 	return int(Input.is_action_just_pressed("ui_grab"))
 
 func update_look_direction(direction):
-	$Sprite.rotation = direction.angle()
+	$Sprite.flip_h = last_direction == -1
 
-func move_to(target_position, floor_position):
+func move_to(target_position, floor_position=null):
 	set_process(false)
 	$AnimationPlayer.play("walk")
 
