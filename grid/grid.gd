@@ -1,10 +1,25 @@
 extends TileMap
 
 enum { EMPTY = -1, ACTOR, OBSTACLE, OBJECT }
+enum { SUNNY, RAINY, WINDY, SNOWY }
+enum { Q = -1, EARTH, WATER, FIRE, WIND }
+
+var weather = SUNNY
 
 func _ready():
 	for child in get_children():
 		set_cellv(world_to_map(child.position), child.type)
+		
+func _process(_delta):
+	if Input.is_action_just_pressed("ui_sunny"):
+		weather = SUNNY
+		for node in get_children():
+			var pos = world_to_map(node.position)
+			if get_cellv(pos) == OBJECT:
+				# Freefall all blocks
+				request_move(node, Vector2(0, 1))				
+	elif Input.is_action_just_pressed("ui_rainy"):
+		weather = RAINY
 		
 func get_cell_pawn(coordinates):
 	for node in get_children():

@@ -1,6 +1,7 @@
 extends Node2D
 
 enum CELL_TYPES{ EMPTY = -1, ACTOR, OBSTACLE, OBJECT }
+enum WEATHER{ SUNNY, RAINY, WINDY, SNOWY }
 var type = CELL_TYPES.ACTOR
 var last_direction = 1 # 1 is right, -1 is left
 onready var Grid = get_parent()
@@ -9,6 +10,10 @@ func _ready():
 	update_look_direction(Vector2(last_direction, 0))
 
 func _process(_delta):
+	if get_input_reset():
+		get_tree().reload_current_scene()
+		return
+	
 	var input_direction = get_input_direction()
 	if input_direction.x != 0:
 		if input_direction.x != last_direction:
@@ -52,7 +57,7 @@ func _process(_delta):
 			print(floor_position)
 		else:
 			bump()
-	elif get_input_grab() == 1:
+	elif get_input_grab():
 		if Grid.get_cell_type(self, Vector2(last_direction, 0)) == CELL_TYPES.OBJECT:
 			var obj_pawn = Grid.get_cell_pawn(Grid.get_cell_pos(self, Vector2(last_direction, 0)))
 			input_direction = Vector2(0 - last_direction, 0)
@@ -76,17 +81,19 @@ func _process(_delta):
 			else:
 				bump()
 		else:
-			bump()
-			
+			bump()	
 
 func get_input_direction():
 	return Vector2(
 		int(Input.is_action_just_pressed("ui_right")) - int(Input.is_action_just_pressed("ui_left")),
 		int(0 - int(Input.is_action_just_pressed("ui_up")))
 	)
-	
+
 func get_input_grab():
-	return int(Input.is_action_just_pressed("ui_grab"))
+	return Input.is_action_just_pressed("ui_grab")
+	
+func get_input_reset():
+	return Input.is_action_just_pressed("ui_reset")
 
 func update_look_direction(direction):
 	$Sprite.flip_h = last_direction == -1
