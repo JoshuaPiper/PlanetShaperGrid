@@ -1,11 +1,13 @@
 # PlanetShaperGrid
 
 
-left/right key -> moving character
+left/right key -> moving character (will automatically push the object if possible)
 
-will automatically push the object if possible
+1/2 key -> sunny/rainy weather
 
-when facing an object:
+r key -> restart stage
+
+When facing an object:
 
 up key -> climb on that object
 
